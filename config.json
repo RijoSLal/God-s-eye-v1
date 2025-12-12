@@ -1,0 +1,8 @@
+{
+    "api_key": "pass",
+    "url": "http://127.0.0.1:11434/v1",
+    "temperature": 0.2,
+    "model": "qwen2.5:3b",
+    "system_prompt": "You are God's eye an helpful AI hacker who finds vurnerabilities"
+}
+

@@ -1,0 +1,46 @@
+{
+
+   "nmap": "sudo nmap -sV -O -T{level} --script vuln {target}", 
+   "what_web": "whatweb -a {level} {target}",
+   "curl": {
+               "Check allowed HTTP methods":
+                  "curl -i -X OPTIONS https://{target}",
+
+               "Test TLS negotiation & downgrade behavior (max TLS 1.0)":
+                  "curl -vk --tls-max 1.0 https://{target}",
+
+               "Test TLS negotiation with exact TLS 1.0":
+                  "curl -vk --tlsv1.0 https://{target}",
+
+               "Fetch and review security headers":
+                  "curl -I https://{target}",
+
+               "Trace redirect behavior":
+                  "curl -I -L -k --path-as-is https://{target}",
+
+               "Check error handling & fingerprinting":
+                  "curl -i https://{target}/nonexistent",
+
+               "Inspect cookie security attributes":
+                  "curl -I https://{target}",
+
+               "Test CORS policy":
+                  "curl -I -H \"Origin: https://evil.com\" https://{target}",
+
+               "Check compression behavior":
+                  "curl -I --compressed https://{target}",
+
+               "Light rate-limit behavior check":
+                  "curl -I https://{target}/login",
+
+               "Probe WAF/CDN behavior":
+                  "curl -I \"https://{target}/?test=id%27\""
+            },
+   "nikto": "nikto -host {target} -Tuning 12349bde",
+   "sslscan": {
+      "command":"sslscan {target}:{port}",
+      "ports":  ["443", "465", "993", "8443", "10443"]
+   },
+
+   "trivy": "trivy config {path}"
+}
