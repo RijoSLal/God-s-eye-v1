@@ -1,7 +1,3 @@
-Here's the updated README:
-
----
-
 # SecOps Agent — v1 → v2
 
 > Single-agent toy that exposed every wrong assumption. v2 fixes them.
@@ -79,5 +75,3 @@ v2 can simulate attacker behavior — not just scan checklists. The Shell Agent 
 
 - [x] v1 — failure points documented
 - [ ] v2 — in design
-
----
