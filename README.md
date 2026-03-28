@@ -1,65 +1,83 @@
-# SecOps Agent — Failure Point Analysis Project
-
-> **Purpose:** This is a research/experimental project built to stress-test current AI-driven SecOps pipelines, identify their failure points, and document limitations before designing a more capable v2 system.
+Here's the updated README:
 
 ---
 
-## What This Project Does
+# SecOps Agent — v1 → v2
 
-Simulates an AI-assisted security operations workflow where agents are given access to function calls that retrieve commands (from a database or external file sources) and execute them within defined boundaries. The goal is not to build a production system — it's to **find where things break** using a toy system.
-
----
-
-## Observed Failure Points (v1)
-
-### LLM Guardrails & Ethics Hesitation
-Standard LLMs refuse or heavily hedge on security-relevant tasks — even legitimate ones. This creates friction in real SecOps workflows where speed and directness matter.
-
-### No Real-Time System Knowledge
-Agents have no awareness of the live environment they're operating in — no current network state, no running services, no asset inventory. Decisions are made blind.
-
-### MCP Client Setup Limitations
-Not all platforms support external MCP tools, and most sit behind paid tiers
-
-### Human Intervention Bottlenecks
-The current design requires human sign-off at too many points, which defeats the purpose of autonomous response — but removing it entirely introduces unacceptable risk.
-
-### Bounded Command Execution
-Agents can only run what's pre-approved in the function/command database. Novel attack surfaces or unexpected scenarios fall outside these boundaries with no graceful fallback.
+> Single-agent toy that exposed every wrong assumption. v2 fixes them.
 
 ---
 
-## v2 — Planned Improvements
+## v1 — What Broke (and Why)
 
-| Area | v1 | v2 |
-|---|---|---|
-| LLM | Censored, guardrailed | Uncensored LLM to reduce hesitation on offensive tasks |
-| Platform Integration | MCP-dependent | MCP removed — direct integrations only |
-| Human Intervention | Blocking | Advisory — human-in-the-loop without halting execution |
-| Attack Capability | Defensive only | Capable of controlled offensive operations |
-| Vulnerability Knowledge | Static DB | Sophisticated scraper to pull live CVEs, exploit disclosures, PoCs |
-| Cross-Verification | None | Scraped vuln data cross-verified against multiple sources |
-| System Awareness | None | Live system knowledge and capability profiling |
+The first version was embarrassingly simple by design — one agent, one LLM, a handful of hardcoded function calls. It found the failure points fast:
 
----
+**LLM Guardrails killed speed.** Standard models hedge, refuse, and over-explain on anything security-adjacent. Legitimate tasks got caught in the same net as malicious ones. Useless in a real workflow.
 
-## v2 Design Principles
+**Zero environment awareness.** The agent operated completely blind — no knowledge of what was running, what was exposed, or what tools were even available on the host.
 
-- **Uncensored LLM backbone** — reduces refusals on security-sensitive prompts while keeping human oversight for high-impact actions
-- **Offensive + Defensive capability** — the system can simulate attacker behavior to find real exposure, not just scan checklists
-- **Live vuln scraper** — pulls from NVD, ExploitDB, vendor advisories, and other sources; cross-verifies before acting on findings
-- **System context awareness** — agent knows what it's running on, what's exposed, and what tools are available
-- **No MCP dependency** — direct API and CLI integrations for reliability and cost control
+**Static vulnerability knowledge.** CVE lookups hit a flat JSON file updated by hand. By the time it mattered, the data was stale.
+
+**One agent doing everything.** No separation of concerns. Scanning, summarizing, decision-making — all crammed into a single prompt loop with no specialization.
+
+**Human approval blocked everything.** Sign-off was required too early and too often. Built for safety, killed for speed.
 
 ---
 
-## Disclaimer
+## v2 — What's Different
 
-This is a toy project. Offensive capabilities are to be used exclusively in authorized environments. Nothing here is intended for use against systems without explicit permission.
+### Guardrails Removed — Heretic LLM Backbone
+Standard models are replaced with **Heretic** — an uncensored LLM backbone that removes refusal behavior on security-sensitive prompts. Offensive tasks, exploit analysis, vulnerability chaining — no hedging, no Ethics 101 disclaimers. Human oversight is preserved for high-impact decisions, but the model itself doesn't flinch.
+
+### Multi-Agent Architecture — Manager + Specialists
+
+Three agents, clearly separated:
+
+| Agent | Role |
+|---|---|
+| **Manager** | Goal setter and final decision maker. Breaks down objectives, assigns tasks, reviews outputs, decides what gets actioned. |
+| **Shell Agent** | Executes commands, runs tools, interacts with the live environment. Hands-on, fast, scoped to what the manager authorizes. |
+| **Scraper Agent** | Continuously pulls from NVD, ExploitDB, vendor advisories, and PoC repositories. Cross-verifies findings across sources before surfacing anything. |
+
+Manager talks to both specialists. Specialists don't talk to each other. Clean hierarchy.
+
+### Live System Awareness
+The Shell Agent profiles the environment on startup — running services, exposed ports, available tools, installed packages. The Manager makes decisions with actual context, not assumptions.
+
+### Human Authority — Where It Actually Matters
+Humans are no longer asked to rubber-stamp every step. Approval is required only for two things:
+
+- **Package installation** — nothing gets installed without explicit human sign-off
+- **External connections** — any outbound call or new integration requires human authorization before it's established
+
+Everything else runs autonomously. The loop doesn't halt; it surfaces decisions that genuinely require a human and keeps moving on everything else.
+
+### Offensive + Defensive Capability
+v2 can simulate attacker behavior — not just scan checklists. The Shell Agent operates in both modes depending on what the Manager assigns. Authorized environments only.
+
+---
+
+## Architecture
+
+```
+                        [ Human ]
+                            |
+              package installs & connection approvals
+                            |
+                      [ Manager Agent ]
+                      goal setter · final decision maker
+                       /                    \
+          [ Shell Agent ]            [ Scraper Agent ]
+          command execution          live CVE · ExploitDB
+          env profiling              vendor advisories · PoCs
+          tool invocation            cross-source verification
+```
 
 ---
 
 ## Status
 
-- [x] v1 — Failure point identification complete
-- [ ] v2 — In design
+- [x] v1 — failure points documented
+- [ ] v2 — in design
+
+---
