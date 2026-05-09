@@ -1,77 +1,44 @@
-# SecOps Agent — v1 → v2
-
-> Single-agent toy that exposed every wrong assumption. v2 fixes them.
+# God's Eye v1 — SecOps Agent
 
 ---
 
-## v1 — What Broke (and Why)
+## How It Started
 
-The first version was embarrassingly simple by design — one agent, one LLM, a handful of hardcoded function calls. It found the failure points fast:
+I did the initial project in `/Poc` while I was exploring OpenAI Swarm docs. Just a single agent with a list of predetermined tools — nmap, nikto, gobuster, the usual suspects. Nothing fancy. A weekend thing.
 
-**LLM Guardrails killed speed.** Standard models hedge, refuse, and over-explain on anything security-adjacent. Legitimate tasks got caught in the same net as malicious ones. Useless in a real workflow.
+Nearly forgot about it.
 
-**Zero environment awareness.** The agent operated completely blind — no knowledge of what was running, what was exposed, or what tools were even available on the host.
+Then I heard about Strix. That got me excited — really looked into how to build a real hacking agent. Explored many architectures. Some overengineered. Some broke easily. You can find them in `/Prototypes` (PDFs).
 
-**Static vulnerability knowledge.** CVE lookups hit a flat JSON file updated by hand. By the time it mattered, the data was stale.
-
-**One agent doing everything.** No separation of concerns. Scanning, summarizing, decision-making — all crammed into a single prompt loop with no specialization.
-
-**Human approval blocked everything.** Sign-off was required too early and too often. Built for safety, killed for speed.
+v1 ended there. In explorations and prototypes.
 
 ---
 
-## v2 — What's Different
+## v2 — The Game Changer
 
-### Guardrails Removed — Heretic LLM Backbone
-Standard models are replaced with **Heretic** — an uncensored LLM backbone that removes refusal behavior on security-sensitive prompts. Offensive tasks, exploit analysis, vulnerability chaining — no hedging, no Ethics 101 disclaimers. Human oversight is preserved for high-impact decisions, but the model itself doesn't flinch.
+From all that research, I came up with **God's Eye v2** — a self-sustained hacking agent that runs locally.
 
-### Multi-Agent Architecture — Manager + Specialists
+**What v2 brings:**
 
-Three agents, clearly separated:
+- Research tooling
+- Full system freedom
+- Self-healing capabilities
+- An abliterated LLM (lethal combo)
+- Fully local with remote blackbox capabilities
+- MCP availability
+- And much more
 
-| Agent | Role |
-|---|---|
-| **Manager** | Goal setter and final decision maker. Breaks down objectives, assigns tasks, reviews outputs, decides what gets actioned. |
-| **Shell Agent** | Executes commands, runs tools, interacts with the live environment. Hands-on, fast, scoped to what the manager authorizes. |
-| **Scraper Agent** | Continuously pulls from NVD, ExploitDB, vendor advisories, and PoC repositories. Cross-verifies findings across sources before surfacing anything. |
-
-Manager talks to both specialists. Specialists don't talk to each other. Clean hierarchy.
-
-### Live System Awareness
-The Shell Agent profiles the environment on startup — running services, exposed ports, available tools, installed packages. The Manager makes decisions with actual context, not assumptions.
-
-### Human Authority — Where It Actually Matters
-Humans are no longer asked to rubber-stamp every step. Approval is required only for two things:
-
-- **Package installation** — nothing gets installed without explicit human sign-off
-- **External connections** — any outbound call or new integration requires human authorization before it's established
-
-Everything else runs autonomously. The loop doesn't halt; it surfaces decisions that genuinely require a human and keeps moving on everything else.
-
-### Offensive + Defensive Capability
-v2 can simulate attacker behavior — not just scan checklists. The Shell Agent operates in both modes depending on what the Manager assigns. Authorized environments only.
-
----
-
-## Architecture
-
-```
-                        [ Human ]
-                            |
-              package installs & connection approvals
-                            |
-                      [ Manager Agent ]
-                      goal setter · final decision maker
-                       /                    \
-          [ Shell Agent ]            [ Scraper Agent ]
-          command execution          live CVE · ExploitDB
-          env profiling              vendor advisories · PoCs
-          tool invocation            cross-source verification
-```
+This isn't v1 with patches. This is a complete redesign based on everything that broke before.
 
 ---
 
 ## Status
 
-- [x] v1 — failure points documented
-- [ ] v2 — in design
+| Version | State |
+|---------|-------|
+| v1 | Complete. Learnings documented. |
+| v2 | In development. |
+
+---
+
+*From a weekend toy to something lethal.*
