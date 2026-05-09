@@ -1,4 +1,4 @@
-# God's Eye v1 — SecOps Agent
+# God's Eye v1 — Hacker Agent
 
 ---
 
